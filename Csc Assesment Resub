@@ -1,0 +1,160 @@
+from tkinter import *
+from tkinter import ttk
+import json
+from datetime import datetime
+
+root = Tk()
+
+label = Label(root, text="JPH")
+
+label.config(text="JPH", fg="purple")
+label.config(font='Times 20') 
+
+label.config(text='Welcome To Julies Party Hire')
+label.config(wraplength='150')
+label.config(justify="center")
+
+label.pack()
+root.geometry("200x200")
+
+def callback():
+    val1 = entry.get()
+    val2 = entry2.get()
+    val3 = entry3.get()
+    val4 = entry4.get()
+    val5 = entry5.get()
+    print("The name is: " + val1)
+    print("The recipt is: " + val2)
+    print("The phone number is:" +val3)
+    print("The occasion is:" +val4)
+    print("Key Code is:" + val5)
+
+
+entry = ttk.Entry(root, width=30)
+entry2 = ttk.Entry(root, width=30)
+entry3 = ttk.Entry(root, width=30)
+entry4 = ttk.Entry(root, width=30)
+entry5 = ttk.Entry(root, width=30)
+entry.insert(0, "Enter Name")
+entry2.insert(0, "Enter Recipt Number" )
+entry3.insert(0, "Enter Phone Number")
+entry4.insert(0, "Enter Occasion")
+entry5.insert(0, "Enter Key Code")
+
+button = ttk.Button(root, text='Enter', command=callback)
+
+entry.pack()
+entry2.pack()
+entry3.pack()
+entry4.pack()
+entry5.pack()
+
+root.geometry("300x300")
+
+def handle_selection(event):
+    selected_item = dropdown.get()
+    result_label.config(text="You selected: " + selected_item)
+
+root.title("Dropdown Box Example")
+
+label = ttk.Label(root, text="Select a Item:")
+label.pack()
+
+fruits = ["Balloons", "Party Hats", "Themed Cutlery", "Piniata", "Party Bags"]
+dropdown = ttk.Combobox(root, values=fruits)
+dropdown.pack()
+
+dropdown.set(fruits[0])
+
+result_label = ttk.Label(root, text="")
+result_label.pack()
+
+dropdown.bind("<<ComboboxSelected>>", handle_selection)
+
+def add_receipt():
+    item = item_entry.get()
+    price = price_entry.get()
+    receipt = {'item': item, 'price': price}
+    receipts.append(receipt)
+    receipt_list.insert("", ttk.END, values=(item, price))
+    item_entry.delete(0, ttk.END)
+    price_entry.delete(0, ttk.END)
+    save_receipts()
+
+def remove_receipt():
+    selected_item = receipt_list.selection()
+    if selected_item:
+        index = int(receipt_list.index(selected_item))
+        receipts.pop(index)
+        receipt_list.delete(selected_item)
+        save_receipts()
+
+def save_receipts():
+    with open('receipts.json', 'w') as file:
+        json.dump(receipts, file)
+
+def load_receipts():
+    try:
+        with open('receipts.json', 'r') as file:
+            receipts.extend(json.load(file))
+            for receipt in receipts:
+                receipt_list.insert("", ttk.END, values=(receipt['item'], receipt['price']))
+    except FileNotFoundError:
+        pass
+
+root.title("Julies Party Hire")
+
+receipts = []  # List to store the receipt information
+load_receipts()
+
+# Create a frame for the entry fields
+entry_frame = ttk.Frame(root)
+entry_frame.pack(pady=10)
+
+# Item entry field
+item_label = ttk.Label(entry_frame, text="Item:")
+item_label.grid(row=0, column=0, padx=5, pady=5)
+item_entry = ttk.Entry(entry_frame)
+item_entry.grid(row=0, column=1, padx=5, pady=5)
+
+# Price entry field
+price_label = ttk.Label(entry_frame, text="Price:")
+price_label.grid(row=1, column=0, padx=5, pady=5)
+price_entry = ttk.Entry(entry_frame)
+price_entry.grid(row=1, column=1, padx=5, pady=5)
+
+# Button frame
+button_frame = ttk.Frame(root)
+button_frame.pack(pady=10)
+
+# Add button
+add_button = ttk.Button(button_frame, text="Add Receipt", command=add_receipt)
+add_button.grid(row=0, column=0, padx=5)
+
+# Remove button
+remove_button = ttk.Button(button_frame, text="Remove Receipt", command=remove_receipt)
+remove_button.grid(row=0, column=1, padx=5)
+
+# Create a treeview to display the receipt log
+receipt_list = ttk.Treeview(root, columns=("Item", "Price"), show="headings")
+receipt_list.heading("Item", text="Item")
+receipt_list.heading("Price", text="Price")
+receipt_list.pack(padx=10, pady=10)
+
+def update_clock():
+    current_time = datetime.now().strftime('%Y-%m-%d %I:%M:%S %p')
+    clock_label.config(text=current_time)
+    root.after(1000, update_clock)  # Schedule the next update after 1 second (1000 milliseconds)
+
+root.title("Receipt Log")
+
+# Create a label for the clock
+clock_label = ttk.Label(root, font=('Arial', 14))
+clock_label.pack()
+
+# Your existing code for the receipt log goes here...
+
+# Call the update_clock function to start updating the clock label
+update_clock()
+
+root.mainloop()
